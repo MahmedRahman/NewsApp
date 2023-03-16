@@ -1,35 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_connect/connect.dart';
+import 'package:get/get.dart';
 
 class HomeApi extends GetConnect {
   Future<List> getNews() async {
     Response response = await get(
-        "https://newsapi.org/v2/everything?q=tesla&from=2023-02-16&sortBy=publishedAt&apiKey=25ea9390bd8f45059600a406d4c6b3cc&language=ar&pageSize=2");
+      "https://629656fc75c34f1f3b2e0b36.mockapi.io/api/v1/news",
+      // headers: {
+      //   "X-Api-Key": "25ea9390bd8f45059600a406d4c6b3cc",
+      // },
+    );
 
-    return response.body["articles"];
+    print(response.body);
+
+    return response.body;
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends GetView {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("News App"),
       ),
-      body: Column(
-        children: [
-          newsCard(
-            title: "Chase Sapphire Rental Car Insurance Benefits Guide",
-            description: "Chase Sapphire Rental Car Insurance Benefits Guide",
-            ImageUrl: "https://johnnyjet.com/wp-content/uploads/2015/11/017-e1589995508894.jpg",
-          ),
-          newsCard(
-            title: "Chase Sapphire Rental Car Insurance Benefits Guide",
-            description: "Chase Sapphire Rental Car Insurance Benefits Guide",
-            ImageUrl: "https://johnnyjet.com/wp-content/uploads/2015/11/017-e1589995508894.jpg",
-          ),
-        ],
+      body: Container(
+        child: SingleChildScrollView(
+          child: FutureBuilder(
+              future: HomeApi().getNews(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Column(
+                    children: List.generate(snapshot.data!.length, (index) {
+                      return newsCard(
+                        title: snapshot.data!.elementAt(index)["title"],
+                        description: snapshot.data!.elementAt(index)["description"],
+                        ImageUrl: snapshot.data!.elementAt(index)["urlToImage"],
+                      );
+                    }),
+                  );
+                }
+
+                return CircularProgressIndicator();
+              }),
+        ),
       ),
     );
   }
